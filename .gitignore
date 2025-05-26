@@ -1,0 +1,20 @@
+# Ignorer les environnements virtuels
+env/
+venv/
+.venv/
+
+# Ignorer les fichiers/dossiers système
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.DS_Store
+*.swp
+
+# Fichiers de logs / temporaires
+*.log
+*.tmp
+
+# VSCode ou autres IDE
+.vscode/
+.idea/
