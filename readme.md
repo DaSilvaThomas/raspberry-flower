@@ -45,7 +45,7 @@ Le modèle peut identifier les fleurs suivantes :
 
 ### 1. Cloner le projet
 ```bash
-git clone <votre-repo>
+git clone https://github.com/DaSilvaThomas/raspberry-flower.git
 cd raspberry-flower
 ```
 
