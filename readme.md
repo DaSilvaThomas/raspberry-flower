@@ -1,10 +1,17 @@
-# 🌸 Raspberry Flower Detector
+# 🌸 Détection de fleurs avec Raspberry Pi
 
-Un projet de détection de fleurs utilisant TensorFlow Lite, optimisé pour fonctionner sur Raspberry Pi avec Debian 11.
+Un projet de détection automatique de fleurs utilisant une Raspberry Pi Camera Module V2 et un modèle TensorFlow Lite.
 
-## 📋 Description
+## 🎯 Objectif
 
-Ce projet permet de détecter et classifier 10 types de fleurs différentes à partir d'une image en utilisant un modèle de machine learning léger (TensorFlow Lite). Il a été spécialement conçu pour être déployé sur des dispositifs à ressources limitées comme la Raspberry Pi.
+Ce projet utilise une Raspberry Pi 3 Model B équipée d'une caméra pour capturer des images de fleurs et les classifier automatiquement grâce à un modèle de machine learning pré-entraîné.
+
+## 🔧 Matériel requis
+
+- **Raspberry Pi 3 Model B**
+- **Raspberry Pi Camera Module V2**
+- Carte SD (16 GB minimum recommandé)
+- Alimentation pour Raspberry Pi
 
 ## 📁 Structure du projet
 
@@ -20,205 +27,110 @@ raspberry-flower/
 └── .gitignore             # Fichiers à ignorer par Git
 ```
 
-## 🔧 Prérequis
+## 🌺 Fleurs détectables
 
-### Matériel
-- Raspberry Pi 3 ou 4 (recommandé)
-- Carte microSD (16GB minimum)
-- Connexion Internet pour l'installation
-
-### Logiciels
-- **OS** : Raspberry Pi OS (Debian 11) ou Debian 11
-- **Python** : Version 3.7 ou supérieure
-- **Git** pour cloner le projet
+Le modèle peut identifier les fleurs suivantes :
+- Phlox
+- Rose
+- Calendula
+- Iris
+- Leucanthemum maximum (Shasta daisy)
+- Campanula (bellflower)
+- Viola
+- Rudbeckia laciniata (Goldquelle)
+- Peony
+- Aquilegia
 
 ## 🚀 Installation
 
-### 1. Préparation du système
-
-Mettez à jour votre système et installez les outils nécessaires :
-
+### 1. Cloner le projet
 ```bash
-sudo apt update && sudo apt upgrade -y
-sudo apt install git python3-pip python3-venv python3-dev -y
-```
-
-### 2. Clonage du projet
-
-```bash
-git clone https://github.com/DaSilvaThomas/raspberry-flower.git
+git clone <votre-repo>
 cd raspberry-flower
 ```
 
-### 3. Configuration de l'environnement virtuel
-
+### 2. Activer la caméra
 ```bash
-# Création de l'environnement virtuel
-python -m venv env
-
-# Activation de l'environnement
-source env/bin/activate
-
-# Mise à jour de pip
-pip install --upgrade pip
+sudo raspi-config
 ```
+Aller dans `Interfacing Options` → `Camera` → `Enable`
 
-### 4. Installation des dépendances
-
+### 3. Installer les dépendances
 ```bash
 pip install -r requirements.txt
 ```
 
-### 5. Installation de TensorFlow Lite Runtime
+## 📸 Utilisation
 
-Pour Raspberry Pi, installez la version spécifique de TensorFlow Lite :
-
-**Pour Raspberry Pi 3/4 (ARM 32-bit) :**
+### Lancement du script de détection
 ```bash
-pip install https://dl.google.com/coral/python/tflite_runtime-2.1.0.post1-cp37-cp37m-linux_armv7l.whl
-```
-
-**Pour Raspberry Pi 4 (ARM 64-bit) :**
-```bash
-pip install https://dl.google.com/coral/python/tflite_runtime-2.1.0.post1-cp37-cp37m-linux_aarch64.whl
-```
-
-> **Note** : Adaptez la version Python (cp37, cp38, cp39) selon votre installation.
-
-## 🖼️ Utilisation
-
-### Préparation de l'image
-
-1. Placez votre image dans le dossier `img/`
-2. Modifiez le chemin dans `detect_flower.py` si nécessaire :
-
-```python
-image_path = "img/votre_image.jpg"
-```
-
-**Formats supportés :** JPG, PNG  
-**Résolution recommandée :** 150x150 pixels minimum
-
-### Exécution du script
-
-```bash
-# Lancez la détection
 python detect_flower.py
 ```
 
-### Exemple de sortie
+### Processus de détection
+1. **Capture** : La caméra prend une photo automatiquement
+2. **Préparation** : L'image est redimensionnée et normalisée
+3. **Inference** : Le modèle TensorFlow Lite analyse l'image
+4. **Résultat** : La fleur est identifiée avec un niveau de confiance
 
-```bash
-🌸 Analyse de l'image : img/fleure.jpg
+### Exemple de sortie
+```
+📷 Préparation de la caméra...
+📸 Capture de l'image : img/captured_flower.jpg
 🔍 Chargement du modèle...
 ✅ Détection terminée !
-
-Résultat : viola (confiance: 92.3%)
+🌸 Fleur détectée : rose (confiance : 87.3%)
 ```
-
-## 🌺 Classes de fleurs reconnues
-
-Le modèle peut identifier les 10 types de fleurs suivants :
-
-| ID | Nom scientifique | Nom commun |
-|----|------------------|------------|
-| 0  | Phlox | Phlox |
-| 1  | Rosa | Rose |
-| 2  | Calendula | Souci |
-| 3  | Iris | Iris |
-| 4  | Leucanthemum maximum | Marguerite Shasta |
-| 5  | Campanula | Campanule |
-| 6  | Viola | Pensée/Violette |
-| 7  | Rudbeckia laciniata | Rudbeckie |
-| 8  | Paeonia | Pivoine |
-| 9  | Aquilegia | Ancolie |
 
 ## ⚙️ Configuration
 
 ### Paramètres modifiables dans `detect_flower.py`
+- `img_height, img_width` : Taille de l'image d'entrée (150x150 par défaut)
+- `confidence_threshold` : Seuil de confiance minimum (0.5 par défaut)
+- `camera.resolution` : Résolution de capture (640x480 par défaut)
 
-```python
-# Chemin vers l'image à analyser
-image_path = "img/fleure.jpg"
+### Seuil de confiance
+Le script n'affiche un résultat que si la confiance est supérieure à 50%. Vous pouvez ajuster cette valeur selon vos besoins.
 
-# Seuil de confiance minimum (0.0 à 1.0)
-confidence_threshold = 0.5
+## 📦 Dépendances
 
-# Taille d'entrée du modèle
-input_size = (224, 224)
-```
+- `tflite-runtime` : Runtime TensorFlow Lite optimisé
+- `numpy` : Calculs numériques
+- `Pillow` : Traitement d'images
+- `picamera` : Interface caméra Raspberry Pi (pré-installé sur Raspbian)
+
+## 🔍 Fonctionnement technique
+
+1. **Capture d'image** : Utilisation de `picamera` pour capturer une photo
+2. **Prétraitement** : Redimensionnement à 150x150 pixels et normalisation (0-1)
+3. **Inference** : Utilisation d'un modèle TensorFlow Lite pré-entraîné
+4. **Post-traitement** : Extraction de la classe avec la plus haute probabilité
 
 ## 🐛 Dépannage
 
-### Problèmes courants
-
-**Erreur d'importation TensorFlow Lite :**
+### Erreur de caméra
 ```bash
-ModuleNotFoundError: No module named 'tflite_runtime'
-```
-**Solution :** Vérifiez que vous avez installé la bonne version de `tflite_runtime` pour votre architecture.
+# Vérifier si la caméra est détectée
+vcgencmd get_camera
 
-**Erreur de mémoire :**
+# Résultat attendu : supported=1 detected=1
+```
+
+### Permissions insuffisantes
 ```bash
-ResourceExhaustedError: OOM
+# Ajouter l'utilisateur au groupe video
+sudo usermod -a -G video $USER
 ```
-**Solution :** Réduisez la taille de l'image ou augmentez le swap de la Raspberry Pi.
 
-**Image non trouvée :**
-```bash
-FileNotFoundError: [Errno 2] No such file or directory
-```
-**Solution :** Vérifiez le chemin vers votre image dans `detect_flower.py`.
+### Modèle non trouvé
+Vérifiez que le fichier `flower_model.tflite` est présent dans le dossier `models/`.
 
-### Performance
+## 📝 Notes
 
-Pour améliorer les performances :
-- Utilisez des images de taille raisonnable (224x224 à 512x512)
-- Fermez les applications non nécessaires
-- Augmentez la mémoire GPU si disponible :
-  ```bash
-  sudo raspi-config
-  # Advanced Options → Memory Split → 128
-  ```
+- Le modèle est optimisé pour fonctionner sur Raspberry Pi
+- Les images capturées sont sauvegardées dans le dossier `img/`
+- Le script remplace automatiquement l'image précédente à chaque exécution
 
-## 📊 Benchmarks
+## 🎓 Contexte académique
 
-Temps d'inférence moyens sur différents modèles de Raspberry Pi :
-
-| Modèle | RAM | Temps moyen | FPS max |
-|--------|-----|-------------|---------|
-| Pi 3B+ | 1GB | ~2.5s | 0.4 |
-| Pi 4 4GB | 4GB | ~1.8s | 0.6 |
-| Pi 4 8GB | 8GB | ~1.5s | 0.7 |
-
-## 🤝 Contribution
-
-Les contributions sont les bienvenues ! Pour contribuer :
-
-1. Forkez le projet
-2. Créez une branche pour votre fonctionnalité (`git checkout -b feature/AmazingFeature`)
-3. Committez vos changements (`git commit -m 'Add some AmazingFeature'`)
-4. Poussez vers la branche (`git push origin feature/AmazingFeature`)
-5. Ouvrez une Pull Request
-
-## 📄 Licence
-
-Ce projet est sous licence MIT. Voir le fichier `LICENSE` pour plus de détails.
-
-## 🙏 Remerciements
-
-- TensorFlow Lite pour le framework de ML léger
-- La communauté Raspberry Pi pour les ressources et guides
-- Les contributeurs du dataset de fleurs utilisé pour l'entraînement
-
-## 📞 Support
-
-Pour toute question ou problème :
-- Ouvrez une issue sur GitHub
-- Consultez la documentation de TensorFlow Lite
-- Visitez les forums Raspberry Pi
-
----
-
-**Version :** 1.0.0  
-**Dernière mise à jour :** Mai 2025
+Ce projet a été développé dans le cadre d'un cours sur la vision par ordinateur et l'intelligence artificielle embarquée, démontrant l'utilisation pratique de modèles de machine learning sur des systèmes à ressources limitées.
