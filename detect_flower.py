@@ -1,12 +1,18 @@
 import numpy as np
 from PIL import Image
 import tflite_runtime.interpreter as tflite
+import picamera
+import time
+import os
 
-# Paramètres
+# === Paramètres ===
 img_height, img_width = 150, 150
-image_path = "img/fleure.jpg"
+image_filename = "captured_flower.jpg"
+image_path = os.path.join("img", image_filename)
+model_path = "models/flower_model.tflite"
+confidence_threshold = 0.5
 
-# Labels
+# === Labels ===
 class_labels = {
     0: "phlox",
     1: "rose",
@@ -20,24 +26,39 @@ class_labels = {
     9: "aquilegia"
 }
 
-# Charger le modèle TFLite
-interpreter = tflite.Interpreter(model_path="models/flower_model.tflite")
-interpreter.allocate_tensors()
+# === Étape 1 : Prendre une photo avec la caméra ===
+print("📷 Préparation de la caméra...")
+with picamera.PiCamera() as camera:
+    camera.resolution = (640, 480)
+    camera.start_preview()
+    time.sleep(2)  # Laisse le temps à la caméra de s'ajuster
+    print(f"📸 Capture de l'image : {image_path}")
+    camera.capture(image_path)
+    camera.stop_preview()
 
+# === Étape 2 : Charger le modèle ===
+print("🔍 Chargement du modèle...")
+interpreter = tflite.Interpreter(model_path=model_path)
+interpreter.allocate_tensors()
 input_details = interpreter.get_input_details()
 output_details = interpreter.get_output_details()
 
-# Charger et préparer l'image
+# === Étape 3 : Préparer l'image ===
 img = Image.open(image_path).convert("RGB").resize((img_width, img_height))
 input_data = np.expand_dims(np.array(img, dtype=np.float32) / 255.0, axis=0)
 
-# Faire une prédiction
+# === Étape 4 : Inference ===
 interpreter.set_tensor(input_details[0]['index'], input_data)
 interpreter.invoke()
 output_data = interpreter.get_tensor(output_details[0]['index'])
 
-# Identifier la classe prédite
+# === Étape 5 : Résultat ===
 predicted_index = np.argmax(output_data[0])
+confidence = float(output_data[0][predicted_index])
 predicted_label = class_labels[predicted_index]
 
-print(f"🌸 Fleur détectée : {predicted_label}")
+print("✅ Détection terminée !")
+if confidence >= confidence_threshold:
+    print(f"🌸 Fleur détectée : {predicted_label} (confiance : {confidence * 100:.1f}%)")
+else:
+    print(f"⚠️ Confiance trop faible ({confidence * 100:.1f}%). Aucune fleur détectée avec certitude.")
